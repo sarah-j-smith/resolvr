@@ -34,6 +34,7 @@ std::string prog;
 #endif
 
 bool resolveSymlinks = false;
+bool isAbsolute = false;
 
 enum HelpLevel {
     HelpLevelShort,
@@ -189,6 +190,10 @@ int main(int argc, char *argv[])
     if (base.size() > 0)
         path = base + SEPARATOR + path;
 
+    isAbsolute = !isRelative(path);
+
+    std::cerr << "resolving \"" << path << "\"\n";
+
     if (resolveSymlinks)
     {
         // Note in this case we ignore the relative_path "base" argument
@@ -214,13 +219,16 @@ int main(int argc, char *argv[])
             // in all other cases accumulate to the resulting path
             pathParts.push_back(item);
         }
+        path.clear();
         if (pathParts.size() == 0)
         {
-            path = ".";
+            path = isAbsolute ? SEPARATOR : '.';
         }
         else
         {
-            path = pathParts.front();
+            if (isAbsolute)
+                path = SEPARATOR;
+            path = path + pathParts.front();
             pathParts.pop_front();
             std::list<std::string>::const_iterator it = pathParts.begin();
             for ( ; it != pathParts.end(); ++it)
