@@ -186,6 +186,9 @@ int main(int argc, char *argv[])
     if (volPart.size() > 0)
         path = pathPart(path);
 
+    if (base.size() > 0)
+        path = base + SEPARATOR + path;
+
     if (resolveSymlinks)
     {
         // Note in this case we ignore the relative_path "base" argument
@@ -195,37 +198,35 @@ int main(int argc, char *argv[])
     }
     else
     {
-        path = base + SEPARATOR + path;
-        int tok = 0;
         std::stringstream ss(path);
         std::string item;
-        std::string resultPath = "";
         std::list<std::string> pathParts;
         while (std::getline(ss, item, SEPARATOR))
         {
-            if (item.size() > 0)
+            // drop empty parts (from eg "//") and 'dots' from eg "/./"
+            if (item.size() == 0 || item == ".") continue;
+            // go up a dir on "/../" parts if not at beginning of a path
+            if (item == ".." && pathParts.size() > 0)
             {
-                if (item == "..")
-                {
-                    if (pathParts.size() > 0)
-                    {
-                        pathParts.pop_back();
-                    }
-                }
-                else if (item == ".")
-                {
-                    //
-                }
-                else
-                {
-                    pathParts.push_back(item);
-                }
+                pathParts.pop_back();
+                continue;
             }
+            // in all other cases accumulate to the resulting path
+            pathParts.push_back(item);
         }
-        std::list<std::string>::const_iterator it = pathParts.begin();
-        for ( ; it != pathParts.end(); ++it)
+        if (pathParts.size() == 0)
         {
-            path = path + SEPARATOR + *it;
+            path = ".";
+        }
+        else
+        {
+            path = pathParts.front();
+            pathParts.pop_front();
+            std::list<std::string>::const_iterator it = pathParts.begin();
+            for ( ; it != pathParts.end(); ++it)
+            {
+                path = path + SEPARATOR + *it;
+            }
         }
     }
 

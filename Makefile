@@ -21,5 +21,7 @@ resolvr: $(OBJ)
 clean:
 	rm -f *.o resolvr *~
 
+install:
+	install resolvr /usr/local/bin
 
-.PHONY: clean all
+.PHONY: clean all install
