@@ -1,0 +1,21 @@
+INSTALLING 
+----------
+
+Download a zip file from GitHub and unzip it.  You'll need a compiler.
+Open a Terminal and cd into the source directory, then type:
+
+    make && sudo make install
+
+That should work on Mac or Linux.  On Windows, open the Makefile and edit
+three lines so they look like this using Notepad++ or similar:
+
+    # For windows
+    OBJ = resolvr.o realpath.o 
+    #OBJ = resolvr.o
+
+then do make as above (if you have gcc) or nmake (if you have Visual
+Studio), then put the binary somewhere on your path.
+
+I may make an installer at some point in the future if people ask for it.
+
+

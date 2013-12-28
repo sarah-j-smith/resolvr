@@ -192,8 +192,6 @@ int main(int argc, char *argv[])
 
     isAbsolute = !isRelative(path);
 
-    std::cerr << "resolving \"" << path << "\"\n";
-
     if (resolveSymlinks)
     {
         // Note in this case we ignore the relative_path "base" argument
