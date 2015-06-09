@@ -3,6 +3,8 @@
 #include <list>
 #include <sstream>
 
+#include <stdlib.h>
+
 #define VERSION "1.0.0"
 
 std::string path;
