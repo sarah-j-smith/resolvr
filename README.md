@@ -4,6 +4,28 @@ resolvr
 File path resolver that is cross-platform.  It also does not resolve
 symlinks unless you ask it to.
 
+
+INSTALL
+-------
+
+On Mac or Linux, as long as g++ is intalled:
+
+   cd resolvr
+   make
+   sudo make install
+
+On Windows build with MinGW, and edit the file _Makefile_ by finding the
+lines starting with _For Windows_ and changing them so it looks like this:
+
+    # For windows
+    OBJ = resolvr.o realpath.o 
+    # OBJ = resolvr.o
+
+Then use the same commands as above.  It will probably also build with
+MSVC if you know what you're doing.
+
+
+
 WHAT IS IT GOOD FOR?
 --------------------
 
