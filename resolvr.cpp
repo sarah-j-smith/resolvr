@@ -70,23 +70,23 @@ void printHelp(HelpLevel helpLevel = HelpLevelShort)
 {
     if (helpLevel == HelpLevelShort)
     {
-        std::cerr << "Usage: " << prog << " [-h] | [-s] path [relative_path]" << std::endl;
+        std::cerr << "Usage: " << prog << " [-h] | [-s] path [base_path]" << std::endl;
     }
     else
     {
         std::cerr << "\n"
                      BOLD "SYNOPSIS\n" RESET
                      "\n"
-                     "       " << prog << " [-h] | [-s] path [relative_path]\n"
+                     "       " << prog << " [-h] | [-s] path [base_path]\n"
                      "\n"
                      BOLD "DESCRIPTION\n" RESET
                      "\n"
-                     "    Returns " BOLD "path" RESET " resolved to canonical form, that is with \"..\", \".\" and\n"
-                     "    doubled-seperators \"" << SEPARATOR << SEPARATOR << "\" replaced where possible so as to form\n"
-                     "    the simplest result that still specifies the same path.\n"
+                     "    Returns " BOLD "path" RESET " resolved to canonical form, that is with \"..\", \".\" and doubled-\n"
+                     "    seperators \"" << SEPARATOR << SEPARATOR << "\" replaced where possible so as to form the simplest result\n"
+                     "    that still specifies the same path.\n"
                      "\n"
                      "    In the two-argument form, returns the " BOLD "path" RESET " in the first argument resolved\n"
-                     "    as relative to the " BOLD "relative_path" RESET " in the second argument.\n"
+                     "    as relative to the " BOLD "base_path" RESET " in the second argument.\n"
                      "\n"
                      "    If the path/s could be resolved resolvr returns EXIT_SUCCESS and outputs the\n"
                      "    resolved path, otherwise it returns EXIT_FAILURE.\n"
@@ -96,20 +96,29 @@ void printHelp(HelpLevel helpLevel = HelpLevelShort)
                      BOLD "    -s\n" RESET
                      "        In the default case this program only does string manipulation, and does not\n"
                      "        reference the file system at all.  With -s symlinks are resolved and paths\n"
-                     "        are checked on the file system.  See PATH RESOLUTION below.\n"
+                     "        are checked on the file system; and any " BOLD "base_path" RESET " argument is ignored.  See\n"
+                     "        the section PATH RESOLUTION below.\n"
                      "\n"
                      BOLD "    -h\n" RESET
                      "        Print this help and exit with EXIT_SUCCESS.\n"
                      "\n"
+                     BOLD "    base_path\n" RESET
+                     "        In the two argument form, where " BOLD "base_path" RESET " is specified, the first argument\n"
+                     "        should be a relative path and the second argument should be absolute.   In\n"
+                     "        the case that the first argument is absolute then the second argument is\n"
+                     "        simply ignored.  This is not an error as scripts will want to do (eg):\n"
+                     "\n"
+                     "              RESOURCE_PATH=`resolvr $(dirname $0)/../resources $PWD`\n"
+                     "\n"
+                     "        and in the case that the script is invoked with an absolute path, then silently\n"
+                     "        ignoring the second argument is the right thing to do.  If the " BOLD "base_path" RESET " is\n"
+                     "        relative then the program will exit with EXIT_FAILURE.\n"
+                     "\n"
                      BOLD "PLATFORMS\n" RESET
                      "\n"
-                     "    If -s is specified then this program will resolve symlinks to their targets, and\n"
-                     "    will fail with EXIT_FAILURE if the target path does not exist.  In the case of\n"
-                     "    -s the " BOLD "second argument is ignored" RESET " and the current directory is assumed\n"
-                     "    as the base for any relative path.\n"
-                     "\n"
                      "    On Windows uses \"\\\" as the path separator character, on all other platforms\n"
-                     "    the \"/\" character.\n"
+                     "    the \"/\" character.  As a result this simple tool does not support VMS and many\n"
+                     "    other platforms that have other path separators.\n"
                      "\n"
                      BOLD "PATH RESOLUTION\n" RESET
                      "\n"
@@ -120,11 +129,16 @@ void printHelp(HelpLevel helpLevel = HelpLevelShort)
                      "    so in the -s case this tool is really just a simple wrapper around realpath (on\n"
                      "    those systems that provide it).\n"
                      "\n"
-                     "    Some systems (not Mac OSX or Windows) have command line versions of realpath or an\n"
-                     "    equivalent in readlink -f which will return a canonical path.\n"
+                     "    If -s is specified then this program will resolve symlinks to their targets, and\n"
+                     "    will fail with EXIT_FAILURE if the target path does not exist.  In the case of\n"
+                     "    -s the " BOLD "second argument is ignored" RESET " and the current directory is assumed\n"
+                     "    as the base for any relative path.\n"
                      "\n"
-                     "    If shell versions of realpath are available this program in the -s case is equivalent\n"
-                     "    to the bash shell code:\n"
+                     "    Some systems (not Mac OSX or Windows) have command line versions of realpath or\n"
+                     "    an equivalent in readlink -f which will return a canonical path.\n"
+                     "\n"
+                     "    If shell versions of realpath are available this program in the -s case is equi-\n"
+                     "    valent to the bash shell code:\n"
                      "\n"
                      "        realpath \"$2/$1\"\n"
                      "\n"
@@ -188,7 +202,18 @@ int main(int argc, char *argv[])
         path = pathPart(path);
 
     if (base.size() > 0)
-        path = base + SEPARATOR + path;
+    {
+        // Two-argument form with base_path
+        if (isRelative(path))
+        {
+            path = base + SEPARATOR + path;
+        }
+        else
+        {
+            printHelp();
+            exit( EXIT_FAILURE );
+        }
+    }
 
     isAbsolute = !isRelative(path);
 
