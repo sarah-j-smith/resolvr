@@ -23,7 +23,7 @@ char *realpath(const char *path, char resolved_path[PATH_MAX])
     else
     {
       //Non standard extension that glibc uses
-      return_path = malloc(PATH_MAX);
+      return_path = (char*) malloc(PATH_MAX);
     }
 
     if (return_path) //Else EINVAL
@@ -39,7 +39,7 @@ char *realpath(const char *path, char resolved_path[PATH_MAX])
           size_t new_size;
 
           free(return_path);
-          return_path = malloc(size);
+          return_path = (char*) malloc(size);
 
           if (return_path)
           {
