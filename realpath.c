@@ -10,6 +10,11 @@ Written by Nach M. S. September 8, 2005
 #include <errno.h>
 #include <sys/stat.h>
 
+
+#ifndef PATH_MAX
+#define PATH_MAX MAX_PATH
+#endif
+
 char *realpath(const char *path, char resolved_path[PATH_MAX])
 {
   char *return_path = 0;
